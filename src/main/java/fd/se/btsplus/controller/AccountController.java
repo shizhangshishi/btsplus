@@ -3,6 +3,8 @@ package fd.se.btsplus.controller;
 import fd.se.btsplus.bts.http.IBtsHttpCaller;
 import fd.se.btsplus.bts.model.respnse.BtsLoginRes;
 import fd.se.btsplus.model.request.LoginReq;
+import fd.se.btsplus.model.response.LoginRes;
+import fd.se.btsplus.model.response.ResWrapper;
 import lombok.AllArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -19,7 +21,9 @@ public class AccountController {
     @PostMapping("/login")
     public ResponseEntity<?> login(@Valid @RequestBody LoginReq request) {
         BtsLoginRes res = caller.login(request.getUsername(), request.getPassword());
-        return ResponseEntity.ok(res);
+        return ResponseEntity.
+                status(res.getCode()).
+                body(ResWrapper.wrap(res.getCode(), LoginRes.from(res)));
     }
 
 }
