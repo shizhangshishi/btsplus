@@ -10,7 +10,6 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
 
 import javax.validation.Valid;
-import java.io.IOException;
 
 @AllArgsConstructor
 @RestController
@@ -19,12 +18,7 @@ public class AccountController {
 
     @PostMapping("/login")
     public ResponseEntity<?> login(@Valid @RequestBody LoginReq request) {
-        BtsLoginRes res = null;
-        try {
-            res = caller.login(request.getUsername(), request.getPassword());
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
+        BtsLoginRes res = caller.login(request.getUsername(), request.getPassword());
         return ResponseEntity.ok(res);
     }
 

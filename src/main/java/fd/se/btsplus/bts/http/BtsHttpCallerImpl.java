@@ -4,6 +4,9 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import fd.se.btsplus.auth.Subject;
+import fd.se.btsplus.bts.exception.BtsForbiddenException;
+import fd.se.btsplus.bts.exception.BtsUnauthorizedException;
+import fd.se.btsplus.bts.model.respnse.BtsBaseRes;
 import fd.se.btsplus.bts.model.respnse.BtsLoginRes;
 import fd.se.btsplus.model.consts.Constant;
 import lombok.AllArgsConstructor;
@@ -17,7 +20,7 @@ import java.io.IOException;
 import java.net.URL;
 
 import static fd.se.btsplus.model.consts.Constant.HTTP_POST;
-import static java.net.HttpURLConnection.HTTP_OK;
+import static java.net.HttpURLConnection.*;
 
 @Profile("prod")
 @Slf4j
@@ -26,7 +29,6 @@ import static java.net.HttpURLConnection.HTTP_OK;
 public final class BtsHttpCallerImpl implements IBtsHttpCaller {
 
     private final Subject subject;
-    private final OkHttpClient client = new OkHttpClient();
 
     @Override
     public BtsLoginRes login(String username, String password) {
@@ -35,18 +37,30 @@ public final class BtsHttpCallerImpl implements IBtsHttpCaller {
                 add("password", password).build();
         final Request request = buildRequest(HTTP_POST,
                 "/sys/login/restful", body, false);
-        BtsLoginRes res = new BtsLoginRes();
-        try (Response response = client.newCall(request).execute()) {
+        return callBtsRequest(request, BtsLoginRes.class);
+    }
+
+    @SneakyThrows
+    private <T extends BtsBaseRes> T callBtsRequest(Request request, Class<T> clazz) {
+        T res = clazz.newInstance();
+        try (Response response = callRequest(request)) {
             if (response.code() == HTTP_OK) {
-                res = readJSON(response.body().string(), BtsLoginRes.class);
+                if (response.body() != null) {
+                    res = readJSON(response.body().string(), clazz);
+                }
             }
             res.setCode(response.code());
+        } catch (JsonProcessingException e) {
+            log.error(String.format("JSON Read Error: %s", e.getMessage()), e);
         } catch (IOException e) {
-            log.error("bts http call: login", e);
+            log.error(String.format("Unknown Error: %s", e.getMessage()), e);
         }
         return res;
     }
 
+
+    //region okhttp request, response helpers.
+    private final OkHttpClient client = new OkHttpClient();
 
     @SneakyThrows
     private Request buildRequest(String method, String path, RequestBody body, boolean withToken) {
@@ -57,6 +71,26 @@ public final class BtsHttpCallerImpl implements IBtsHttpCaller {
         return builder.url(new URL(new URL(BTS_URL), path)).method(method, body).build();
     }
 
+    private Response callRequest(Request request) {
+        Response response;
+        try {
+            response = client.newCall(request).execute();
+        } catch (IOException e) {
+            throw new BtsUnauthorizedException(e.getMessage(), e);
+        }
+        switch (response.code()) {
+            case HTTP_UNAUTHORIZED:
+                throw new BtsUnauthorizedException(String.format("BTS Service Unauthorized: %s", request.url()), null);
+            case HTTP_FORBIDDEN:
+                throw new BtsForbiddenException(String.format("BTS Service Forbidden: %s", request.url()), null);
+            case HTTP_NOT_FOUND:
+                throw new BtsForbiddenException(String.format("BTS Service Not Found: %s", request.url()), null);
+        }
+        return response;
+    }
+    //endregion
+
+    //region JSON helpers.
     private static <T> T readJSON(String json, Class<T> clazz) throws JsonProcessingException {
         return MAPPER.readValue(json, clazz);
     }
@@ -66,4 +100,5 @@ public final class BtsHttpCallerImpl implements IBtsHttpCaller {
     static {
         MAPPER.registerModule(new JavaTimeModule());
     }
+    //endregion
 }
