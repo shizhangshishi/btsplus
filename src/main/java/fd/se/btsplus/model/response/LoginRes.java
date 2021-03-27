@@ -2,6 +2,7 @@ package fd.se.btsplus.model.response;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 import fd.se.btsplus.bts.model.respnse.BtsLoginRes;
+import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
@@ -13,8 +14,10 @@ import java.time.LocalDateTime;
 @Data
 @AllArgsConstructor
 public class LoginRes extends BaseRes {
+    @Schema(description = "expire time")
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd HH:mm:ss")
     private LocalDateTime expireTime;
+    @Schema(description = "login token")
     private String token;
 
     public static LoginRes from(BtsLoginRes res) {
