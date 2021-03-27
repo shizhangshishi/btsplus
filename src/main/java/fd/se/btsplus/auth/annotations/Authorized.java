@@ -1,4 +1,4 @@
-package fd.se.btsplus.auth;
+package fd.se.btsplus.auth.annotations;
 
 import fd.se.btsplus.model.consts.Role;
 
@@ -8,5 +8,5 @@ import java.lang.annotation.*;
 @Retention(RetentionPolicy.RUNTIME)
 @Documented
 public @interface Authorized {
-    Role[] rolesRequired = {};
+    Role[] required() default Role.ANY;
 }
