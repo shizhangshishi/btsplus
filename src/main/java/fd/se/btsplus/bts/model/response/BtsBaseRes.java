@@ -1,4 +1,4 @@
-package fd.se.btsplus.bts.model.respnse;
+package fd.se.btsplus.bts.model.response;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import lombok.Data;

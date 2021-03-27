@@ -1,7 +1,7 @@
 package fd.se.btsplus.controller;
 
 import fd.se.btsplus.bts.http.IBtsHttpCaller;
-import fd.se.btsplus.bts.model.respnse.BtsLoginRes;
+import fd.se.btsplus.bts.model.response.BtsLoginRes;
 import fd.se.btsplus.model.request.LoginReq;
 import fd.se.btsplus.model.response.LoginRes;
 import fd.se.btsplus.model.response.ResWrapper;

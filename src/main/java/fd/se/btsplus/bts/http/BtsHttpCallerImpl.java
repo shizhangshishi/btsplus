@@ -6,8 +6,9 @@ import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import fd.se.btsplus.auth.Subject;
 import fd.se.btsplus.bts.exception.BtsForbiddenException;
 import fd.se.btsplus.bts.exception.BtsUnauthorizedException;
-import fd.se.btsplus.bts.model.respnse.BtsBaseRes;
-import fd.se.btsplus.bts.model.respnse.BtsLoginRes;
+import fd.se.btsplus.bts.model.response.BtsBaseRes;
+import fd.se.btsplus.bts.model.response.BtsCurrUserRes;
+import fd.se.btsplus.bts.model.response.BtsLoginRes;
 import fd.se.btsplus.model.consts.Constant;
 import lombok.AllArgsConstructor;
 import lombok.SneakyThrows;
@@ -15,6 +16,7 @@ import lombok.extern.slf4j.Slf4j;
 import okhttp3.*;
 import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Service;
+import sun.reflect.generics.reflectiveObjects.NotImplementedException;
 
 import java.io.IOException;
 import java.net.URL;
@@ -38,6 +40,11 @@ public final class BtsHttpCallerImpl implements IBtsHttpCaller {
         final Request request = buildRequest(HTTP_POST,
                 "/sys/login/restful", body, false);
         return callBtsRequest(request, BtsLoginRes.class);
+    }
+
+    @Override
+    public BtsCurrUserRes currUser() {
+        throw new NotImplementedException();
     }
 
     @SneakyThrows

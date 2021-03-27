@@ -1,7 +1,7 @@
 package fd.se.btsplus.model.response;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
-import fd.se.btsplus.bts.model.respnse.BtsLoginRes;
+import fd.se.btsplus.bts.model.response.BtsLoginRes;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.AllArgsConstructor;
 import lombok.Data;
